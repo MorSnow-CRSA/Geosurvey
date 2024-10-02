@@ -1,4 +1,4 @@
-package com.crsageosurvey
+package com.crsa.geosurvey
 
 import android.os.Build
 import android.os.Bundle

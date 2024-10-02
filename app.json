@@ -2,6 +2,14 @@
   "expo": {
     "name": "CRSA-Geosurvey",
     "slug": "CRSA-Geosurvey",
-    "version": "1.0.0"
+    "version": "1.0.0",
+    "extra": {
+      "eas": {
+        "projectId": "216852f8-d9a4-4d13-a4b4-7d7d1a1b6b5d"
+      }
+    },
+    "android": {
+      "package": "com.crsa.geosurvey"
+    }
   }
 }

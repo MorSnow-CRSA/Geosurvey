@@ -44,7 +44,7 @@ if (getRNMinorVersion() >= 75) {
   }
 }
 
-rootProject.name = 'CRSAGeosurvey'
+rootProject.name = 'CRSA-Geosurvey'
 
 dependencyResolutionManagement {
   versionCatalogs {
