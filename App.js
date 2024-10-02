@@ -45,11 +45,7 @@ export default function App() {
     }
     fetchUser();
   }, []);
-  // useEffect(()=>{
-  //   if(user === null){
-  //   console.log("logged out");
-  //   }
-  // }, [user]);
+
   return (
     <View style={styles.container}>
       {user && (
