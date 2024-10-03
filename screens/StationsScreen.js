@@ -34,11 +34,14 @@ const StationsScreen = ({ setPage, setBack, setStationId, params }) => {
     const renderStation = ({ item }) => (
         <TouchableOpacity style={styles.stationCard} onPress={() => {setPage("StationDetails", { stationId: item.id }); setStationId(item.id)}}>
             <View style={{ alignSelf: 'center', width: '100%', height: '100px' }}>
-                <Image
+                {item.image &&(
+                    <Image
                     source={{ uri: item.image }}
                     style={{  width: '100%', height: '100%' }} 
                     resizeMode="contain" 
-                />
+                    />
+                )}
+                
             </View>
             <View style={{ alignSelf: 'center', width: '100%'  }}>
                 <Text style={{ fontSize: 14, fontWeight: 'bold', textAlign: 'center'}}>{item.name}</Text>

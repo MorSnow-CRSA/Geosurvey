@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, FlatList, StyleSheet, Image } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, StyleSheet, ScrollView } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { db } from '../firestore';
 import { doc, getDoc } from 'firebase/firestore';
@@ -21,10 +21,12 @@ const StationDetails = ({setPage, setBack, stationId}) => {
     getStation();
   }, []);
   const sections = [
-    { id: '1', itemName: 'Add note', icon: 'create' },
+    { id: '1', itemName: 'Add note', icon: 'create-new-folder' },
     { id: '2', itemName: 'View notes', icon: 'note' },
     { id: '3', itemName: 'Status', icon: 'preview' },
     { id: '4', itemName: 'Add equipment', icon: 'add' },
+    { id: '5', itemName: 'Update station', icon: 'edit-document' },
+    { id: '6', itemName: 'Generate report', icon: 'file-download' },
   ];
   
 
@@ -42,18 +44,21 @@ const StationDetails = ({setPage, setBack, stationId}) => {
 
   return (
     <View style={styles.container}>
-        {station && (
-        <View style={styles.stationDetails}>
-            <Text style={styles.stationName}>Station : {station.name}</Text>
-        </View>
-        )}
-      <FlatList
-        data={sections}
-        renderItem={OptionsDetails}
-        keyExtractor={item => item.id}
-        numColumns={2}
-        columnWrapperStyle={styles.row}
-      />
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+          {station && (
+              <View style={styles.stationDetails}>
+                  <Text style={styles.stationName}>Station : {station.name}</Text>
+              </View>
+          )}
+          <FlatList
+              data={sections}
+              renderItem={OptionsDetails}
+              keyExtractor={item => item.id}
+              numColumns={2}
+              columnWrapperStyle={styles.row}
+              contentContainerStyle={styles.flatListContent}
+          />
+      </ScrollView>
     </View>
   );
 };
@@ -80,6 +85,7 @@ const styles = StyleSheet.create({
   },
   row: {
     justifyContent: 'space-between',
+    flex: 1,
   },
   reportCard: {
     flexDirection: 'column',
@@ -117,6 +123,9 @@ const styles = StyleSheet.create({
   carIcon: {
     marginBottom: 5,
   },  
+  flatListContent: {
+    paddingBottom: 20, // Adjust this value if needed
+  },
 });
 
 export default StationDetails;

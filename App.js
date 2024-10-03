@@ -12,7 +12,8 @@ import StationDetails from './screens/StationDetails';
 import AddEquipment from './screens/AddEquipment';
 import AddNote from './screens/AddNote';
 import StationStatus from './screens/StationStatus';
-
+import UpdateStation from './screens/UpdateStation';
+import NotesList from './screens/NotesList';
 export default function App() {
   const [user, setUser] = useState(null);
   const [page, setPage] = useState('home');
@@ -40,7 +41,6 @@ export default function App() {
   useEffect(()=>{
     async function fetchUser() {
       const user = await getUser();
-      console.log("user ", user);
       setUser(user);
     }
     fetchUser();
@@ -76,7 +76,9 @@ export default function App() {
       {user && (page === "StationDetails" && <StationDetails setPage={setPage} setBack={setBack} stationId={stationId} />)}
       {user && (page === "Add equipment" && <AddEquipment setPage={setPage} setBack={setBack} stationId={stationId} />)}
       {user && (page === "Add note" && <AddNote setPage={setPage} setBack={setBack} stationId={stationId} user={user} />)}
-      {user && (page === "StationStatus" && <StationStatus setPage={setPage} setBack={setBack} stationId={stationId} />)}
+      {user && (page === "Status" && <StationStatus setPage={setPage} setBack={setBack} stationId={stationId} />)}
+      {user && (page === "View notes" && <NotesList setPage={setPage} setBack={setBack} stationId={stationId} />)}
+      {user && (page === "Update station" && <UpdateStation setPage={setPage} setBack={setBack} stationId={stationId} />)}
       {!user && <Login setUser={setUser}/>}       
     </View>
   );

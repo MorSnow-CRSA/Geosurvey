@@ -15,9 +15,8 @@ const AddStation = ({setPage, setBack}) => {
     const [notes, setNotes] = useState([]);
     const [latitude, setLatitude] = useState("");
     const [longitude, setLongitude] = useState("");
-    const [image, setImage] = useState("");
-    const [interval, setInterval] = useState("");
-    const [transmission, setTransmission] = useState(false);
+    const [image, setImage] = useState(null);
+
     const [date, setDate] = useState(new Date());
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [extension, setExtension] = useState("");
@@ -36,8 +35,6 @@ const AddStation = ({setPage, setBack}) => {
                 notes:notes,
                 coordinates: new GeoPoint(latitude, longitude),
                 image:image,
-                interval:interval,
-                transmission:transmission,
                 date:date,
               }
             console.log("data", data);

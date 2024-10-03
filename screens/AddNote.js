@@ -14,15 +14,22 @@ const AddNote   = ({setPage, setBack, stationId, user}) => {
     const [image, setImage] = useState("");
     const [date, setDate] = useState(new Date());
     const [equipment, setEquipment] = useState([]);
+    const [selectedEquipment, setSelectedEquipment] = useState("");
     const [status, setStatus] = useState("");
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [extension, setExtension] = useState("");
 
     const status_list = ["good", "cleaned", "damaged", "needs maintenance", "other"];
 
-    useEffect(() => {
-        setBack("StationDetails");
-    }, []);
+    
+
+    const getEquipment = async () => {
+        const docRef = doc(collection(db, "station"), stationId);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            setEquipment(docSnap.data().equipments);
+        }
+    };
 
     const handleSave =  async () => {
         try {
@@ -35,6 +42,7 @@ const AddNote   = ({setPage, setBack, stationId, user}) => {
                 status:status,
                 image:image,
                 date:date,
+                equipment:selectedEquipment,
                 user:user.email.split("@")[0].split(".").join(" "),
               }
             console.log("data", data);
@@ -45,9 +53,8 @@ const AddNote   = ({setPage, setBack, stationId, user}) => {
         } catch (e) {
           console.error("Error adding document: ", e);
         }
-      };
+    };
       
-    
     const onDateChange = (event, selectedDate) => {
         const currentDate = selectedDate || date;
         setShowDatePicker(Platform.OS === 'ios');
@@ -60,6 +67,7 @@ const AddNote   = ({setPage, setBack, stationId, user}) => {
         }
         return 'Select a date';
     };
+
     const handleWebDateTimeChange = (event) => {
         console.log(event.target.value);
         try {
@@ -97,6 +105,10 @@ const AddNote   = ({setPage, setBack, stationId, user}) => {
         setImage(url);
     };
 
+    useEffect(() => {
+        setBack("StationDetails");
+        getEquipment();
+    }, []);
 
   return (
     <View style={styles.stationsContainer}>
@@ -112,10 +124,27 @@ const AddNote   = ({setPage, setBack, stationId, user}) => {
         
         </View>
 
+        {equipment && (
+            <View style={styles.inputContainer}>
+            <Picker
+                selectedValue={selectedEquipment}
+                style={styles.select}
+                onValueChange={(itemValue) => setSelectedEquipment(itemValue)}
+            >
+                {equipment.map((value, index) => (
+                     value.serial ? (
+                        <Picker.Item key={index} value={value.serial} label={value.name + ' - ' + value.serial} />
+                    ) : <Picker.Item key={index} value={value.name} label={value.name} />
+                ))
+                }
+                </Picker>
+            </View>
+        )}
+        
         <View style={styles.inputContainer}>
             <Picker
                 selectedValue={status}
-                style={styles.input}
+                style={styles.select}
                 onValueChange={(itemValue) => setStatus(itemValue)}
             >
                 {status_list.map((status, index) => (
@@ -282,6 +311,17 @@ const styles = StyleSheet.create({
         height: 100,
         marginTop: 10,
         borderRadius: 5,
+    },
+    select: {
+        backgroundColor: '#4d5398',
+        color: '#fff',
+        flex: 1,
+        border: 'none',
+    },
+    pickerItem: {
+        backgroundColor: '#4d5398',
+        border: 'none',
+        color: '#fff',
     },
 });
 

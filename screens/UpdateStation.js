@@ -1,54 +1,53 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, TextInput, StyleSheet, Platform } from 'react-native';
 import { db, storage } from '../firestore.js';
+import { collection,GeoPoint, updateDoc,getDoc, doc } from 'firebase/firestore'; 
 import { useState, useEffect } from 'react';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as ImagePicker from 'expo-image-picker';
 import { Image } from 'react-native';
 import { ref, uploadBytesResumable, getDownloadURL  } from 'firebase/storage';
-import {collection, updateDoc, doc, arrayUnion} from 'firebase/firestore';
-import { Picker } from '@react-native-picker/picker';
-const AddEquipment   = ({setPage, setBack, stationId}) => {
-    
+
+const UpdateStation = ({setPage, setBack, stationId  }) => {
+    setBack("Stations");
     const [name, setName] = useState("");
-    const [type, setType] = useState("");
+    const [latitude, setLatitude] = useState("");
+    const [longitude, setLongitude] = useState("");
     const [image, setImage] = useState("");
     const [date, setDate] = useState(new Date());
-    const [serial, setSerial] = useState("");
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [extension, setExtension] = useState("");
 
-    const types = ["Sensor", "Accessory","Data Logger","Tripod","Regulator","Tower","Multiplexer","Tripod","Other"]
-    useEffect(() => {
-        setBack("StationDetails");
-    }, []);
 
-    
-    
-      
     const handleSave =  async () => {
         try {
-            if (image) {
-                await uploadImage(image);
-            }
-            
+            const url = await uploadImage(image);
             const data ={
                 name:name,
-                type:type,
-                image:image,
+                coordinates: new GeoPoint(latitude, longitude),
+                image:url,
                 date:date,
               }
-            console.log("data", data);
-          const docRef = doc(collection(db, "station"), stationId);
-          await updateDoc(docRef,{equipments:arrayUnion(data)});
-          setPage("StationDetails", { showSuccessPopup: true }); 
+            const docRef = doc(collection(db, "station"), stationId);
+            await updateDoc(docRef,data);
+          setPage("Stations", { showSuccessPopup: true }); 
 
         } catch (e) {
           console.error("Error adding document: ", e);
         }
       };
       
-    
+    const getStationInfo = async () => {
+        const docRef = doc(collection(db, "station"), stationId);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            setName(docSnap.data().name);
+            setLatitude(docSnap.data().coordinates.latitude);
+            setLongitude(docSnap.data().coordinates.longitude);
+            setImage(docSnap.data().image);
+            setDate(new Date(docSnap.data().date.toDate()));
+        }
+    };
     const onDateChange = (event, selectedDate) => {
         const currentDate = selectedDate || date;
         setShowDatePicker(Platform.OS === 'ios');
@@ -70,6 +69,10 @@ const AddEquipment   = ({setPage, setBack, stationId}) => {
         }
     };
 
+    useEffect(() => {
+        getStationInfo();
+    }, []);
+
     const pickImage = async () => {
         // No permissions request is necessary for launching the image library
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -83,9 +86,7 @@ const AddEquipment   = ({setPage, setBack, stationId}) => {
         if (!result.canceled) {
             setImage(result.assets[0].uri);
             l = result.assets[0].uri.split(".")
-
             setExtension(l[l.length-1]);
-            console.log("extension", extension);
         }
     };
 
@@ -95,7 +96,8 @@ const AddEquipment   = ({setPage, setBack, stationId}) => {
         const storageRef = ref(storage, `images/${new Date().getTime()}.${extension}`);
         const uploadTask = await uploadBytesResumable(storageRef, blob);
         const url = await getDownloadURL(uploadTask.ref);
-        setImage(url);
+        return url;
+        
     };
 
 
@@ -112,42 +114,11 @@ const AddEquipment   = ({setPage, setBack, stationId}) => {
             />
         
         </View>
-
-        <View style={styles.inputContainer}>
-            <Picker
-                selectedValue={type}
-                style={styles.input}
-                onValueChange={(itemValue) => setType(itemValue)}
-            >
-                {types.map((value, index) => (
-                    <Picker.Item key={index} label={value} value={value} />
-                ))}
-                </Picker>
-            </View>
-
-        <View style={styles.inputContainer}>
-            <TextInput
-                keyboardType="decimal-pad"
-                style={styles.input}
-                placeholder="Serial Number"
-                placeholderTextColor="#fff"
-                value={serial}
-                onChangeText={(text) => {
-                    // Allow only numbers, one decimal point, and optional minus sign at the start
-                    const numericValue = text.replace(/[^0-9.-]/g, '')
-                                            .replace(/(\..*)\./g, '$1')
-                                            .replace(/(?!^)-/g, '')
-                                            .replace(/^(-?\d+\.\d{6}).*$/, '$1');
-                    setSerial(numericValue);
-                }}
-            />
-        </View>
-
         <View style={styles.inputContainer}>
                 {Platform.OS === 'web' ? (
                     <input
                         type="date"
-                        value={date.toISOString().slice(0,10)}
+                        value={date.toISOString().split('T')[0]}
                         onChange={handleWebDateTimeChange}
                         style={{
                             ...styles.input,
@@ -186,7 +157,41 @@ const AddEquipment   = ({setPage, setBack, stationId}) => {
                 )}
         </View>
 
-        
+        <View style={styles.inputContainer}>
+            <TextInput
+                keyboardType="decimal-pad"
+                style={styles.input}
+                placeholder="Latitude"
+                placeholderTextColor="#fff"
+                value={latitude}
+                onChangeText={(text) => {
+                    // Allow only numbers, one decimal point, and optional minus sign at the start
+                    const numericValue = text.replace(/[^0-9.-]/g, '')
+                                            .replace(/(\..*)\./g, '$1')
+                                            .replace(/(?!^)-/g, '')
+                                            .replace(/^(-?\d+\.\d{6}).*$/, '$1');
+                    setLatitude(numericValue);
+                }}
+            />
+        </View>
+
+        <View style={styles.inputContainer}>
+            <TextInput
+                keyboardType="decimal-pad"
+                style={styles.input}
+                placeholder="Longitude"
+                placeholderTextColor="#fff"
+                value={longitude}
+                onChangeText={(text) => {
+                    // Allow only numbers, one decimal point, and optional minus sign at the start
+                    const numericValue = text.replace(/[^0-9.-]/g, '')
+                                            .replace(/(\..*)\./g, '$1')
+                                            .replace(/(?!^)-/g, '')
+                                            .replace(/^(-?\d+\.\d{6}).*$/, '$1');
+                    setLongitude(numericValue);
+                }}
+            />
+        </View>
 
         <View style={styles.inputContainer}>
                 <TouchableOpacity style={styles.imagePickerButton} onPress={pickImage}>
@@ -304,4 +309,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default AddEquipment;
+export default UpdateStation;

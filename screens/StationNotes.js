@@ -1,61 +1,41 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, StyleSheet, Image } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { db } from '../firestore';
-import { collection, query, doc, orderBy, getDocs, getDoc } from 'firebase/firestore';
+import { collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
 import {useState, useEffect } from 'react';
 
-const StationStatus = ({setPage, setBack, stationId}) => {
-    const [station, setStation] = useState(null);
+const StationNotes = ({setPage, setBack, stationId}) => {
+
+    const [lastVisit, setLastVisit] = useState("");
     const [equipmentStatus, setEquipmentStatus] = useState("");
 
-    const getStation = async () => {
-        const docRef = doc(db, "station", stationId);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-            setStation(docSnap.data());
-        }
-    };
-    useEffect(() => {
-        getStation();
-    }, [stationId]);
+
     // Function to fetch the last equipment with "damaged" status for a specific station
-    const fetchLastNoteForEachEquipment = async (stationId) => {
+    const fetchNotes = async (stationId) => {
         try {
             const q = query(
-                collection(db, "station", stationId, "equipment"),
-                orderBy("date", "desc")
+                collection(db, "station", stationId, "notes"),
+                orderBy("date", "desc"),
             );
-    
             const querySnapshot = await getDocs(q);
-            let equipmentWithLastNotes = [];
-    
-            querySnapshot.forEach((doc) => {
-                const data = doc.data();
-                if (data.notes && data.notes.length > 0) {
-                    const lastNote = data.notes[data.notes.length - 1];
-                    equipmentWithLastNotes.push({
-                        equipment: data.name, // Assuming 'name' is the equipment name field
-                        status: lastNote
-                    });
-                }
-            });
-    
-            return equipmentWithLastNotes;
+            const notes = querySnapshot.docs.map((doc) => doc.data());
+            return notes;
         } catch (error) {
-            console.error("Error fetching last notes for each equipment: ", error);
+            console.error("Error fetching notes: ", error);
             return [];
         }
     };
     
+    
     // Example usage
     useEffect(() => {
-        const getLastNotesForEachEquipment = async () => {
-            const equipment = await fetchLastNoteForEachEquipment(stationId);
-            setEquipmentStatus(equipment);
+        const getNotes = async () => {
+            const notes = await fetchNotes(stationId);
+            console.log("Notes: ", notes);
         };
     
-        getLastNotesForEachEquipment();
+        getNotes();
     }, [stationId]);
   
 
@@ -78,14 +58,11 @@ const StationStatus = ({setPage, setBack, stationId}) => {
             <Text style={styles.stationName}>Station : {station.name}</Text>
         </View>
         )}
-        <FlatList
-                data={equipmentStatus}
-        renderItem={OptionsDetails}
-        keyExtractor={item => item.id}
-        numColumns={2}
-        columnWrapperStyle={styles.row}
+      <FlatList
+        data={notes}
+        renderItem={({ item }) => <NoteItem note={item} />}
+        keyExtractor={(item, index) => index.toString()}
       />
-            
     </View>
   );
 };
@@ -151,4 +128,4 @@ const styles = StyleSheet.create({
   },  
 });
 
-export default StationStatus;
+export default StationNotes;
