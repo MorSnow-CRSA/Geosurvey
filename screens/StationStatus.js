@@ -2,13 +2,13 @@ import React from 'react';
 import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { db } from '../firestore';
-import { collection, query, doc, orderBy, getDocs, getDoc } from 'firebase/firestore';
+import { collection, query, doc, orderBy, getDocs, getDoc, where, limit} from 'firebase/firestore';
 import {useState, useEffect } from 'react';
 
 const StationStatus = ({setPage, setBack, stationId}) => {
     const [station, setStation] = useState(null);
-    const [equipmentStatus, setEquipmentStatus] = useState("");
-
+    const [equipmentStatus, setEquipmentStatus] = useState([]);
+    const [equipment, setEquipment] = useState([]);
     const getStation = async () => {
         const docRef = doc(db, "station", stationId);
         const docSnap = await getDoc(docRef);
@@ -16,47 +16,66 @@ const StationStatus = ({setPage, setBack, stationId}) => {
             setStation(docSnap.data());
         }
     };
-    useEffect(() => {
+    const getEquipment = async () => {
+        const docRef = doc(collection(db, "station"), stationId);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            setEquipment(docSnap.data().equipments);
+        }
+    };
+    useEffect(async () => {
         getStation();
+        getEquipment();
+        const equipment = await fetchLastNoteForEachEquipment(stationId);
+        console.log("equipment", equipment);
+        setEquipmentStatus(equipment);
     }, [stationId]);
-    // Function to fetch the last equipment with "damaged" status for a specific station
+     
     const fetchLastNoteForEachEquipment = async (stationId) => {
+        console.log("fetchLastNoteForEachEquipment called");
         try {
-            const q = query(
-                collection(db, "station", stationId, "equipment"),
-                orderBy("date", "desc")
-            );
+            const notesRef = collection(db, "station", stationId, "notes");
+            
+            const equipmentStatuses = await Promise.all(equipment.map(async (equipmentItem) => {
+                const q = query(
+                    notesRef,
+                    where("equipment", "==", equipmentItem.serial),
+                    orderBy("timestamp", "desc"),
+                    limit(1)
+                );
     
-            const querySnapshot = await getDocs(q);
-            let equipmentWithLastNotes = [];
-    
-            querySnapshot.forEach((doc) => {
-                const data = doc.data();
-                if (data.notes && data.notes.length > 0) {
-                    const lastNote = data.notes[data.notes.length - 1];
-                    equipmentWithLastNotes.push({
-                        equipment: data.name, // Assuming 'name' is the equipment name field
-                        status: lastNote
-                    });
+                const querySnapshot = await getDocs(q);
+                if (!querySnapshot.empty) {
+                    setEquipmentStatus(prevEquipmentStatus => [...prevEquipmentStatus, {
+                        equipment: equipmentItem,
+                        status: querySnapshot.docs[0].data()
+                    }]);
+                    return {
+                        equipment: equipmentItem,
+                        status: querySnapshot.docs[0].data()
+                    };
                 }
-            });
-    
-            return equipmentWithLastNotes;
+                else{
+                    setEquipmentStatus(prevEquipmentStatus => [...prevEquipmentStatus, {
+                        equipment: equipmentItem,
+                        status: "good"
+                    }]);
+                    return {
+                        equipment: equipmentItem,
+                        status: "good"
+                    };
+                }
+                
+                
+            }));
+            console.log("equipmentStatuses", equipmentStatus);
+            
         } catch (error) {
             console.error("Error fetching last notes for each equipment: ", error);
-            return [];
         }
     };
     
-    // Example usage
-    useEffect(() => {
-        const getLastNotesForEachEquipment = async () => {
-            const equipment = await fetchLastNoteForEachEquipment(stationId);
-            setEquipmentStatus(equipment);
-        };
     
-        getLastNotesForEachEquipment();
-    }, [stationId]);
   
 
   const OptionsDetails = ({ item }) => (
@@ -66,7 +85,8 @@ const StationStatus = ({setPage, setBack, stationId}) => {
         <MaterialIcons name={item.icon} size={48} color="#21437f" style={styles.carIcon} />
       </View>
       <View style={styles.reportInfo}>
-        <Text style={styles.optionName}>{item.itemName}</Text>
+        <Text style={styles.optionName}>{item.equipment.name}</Text>
+        <Text style={styles.optionName}>{item.status}</Text>
       </View>
       </TouchableOpacity>
   );
