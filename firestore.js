@@ -1,6 +1,6 @@
 // firebaseConfig.js
 import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import { initializeFirestore, persistentLocalCache, persistentSingleTabManager } from 'firebase/firestore';
 import {getAuth} from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
 const firebaseConfig = {
@@ -16,8 +16,8 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Firestore
-const db = getFirestore(app);
+// Initialize Firestore with local cache, and single tab manager, and ttl of 30 minutes
+const db = initializeFirestore(app,{ localCache: persistentLocalCache({ ttlSeconds: 60*30, tabManager: persistentSingleTabManager() }) });
 const auth = getAuth(app);
 const storage = getStorage(app);
 export { db, auth, storage};
