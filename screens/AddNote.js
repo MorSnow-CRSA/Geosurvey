@@ -165,7 +165,7 @@ const AddNote   = ({setPage, setBack, stationId, user}) => {
                             color: '#fff',
                             border: 'none',
                         }}
-                    />
+                    /> 
                 ) : Platform.OS === 'ios' ? (
                     <DateTimePicker
                         style={styles.input}

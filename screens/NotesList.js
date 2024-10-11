@@ -1,5 +1,5 @@
 import React from 'react';
-import { View,ScrollView, Text, StyleSheet } from 'react-native';
+import { View,ScrollView, Text, StyleSheet, Image } from 'react-native';
 import { db,  } from '../firestore.js';
 import { useState, useEffect } from 'react';
 import {collection,  doc,  getDoc} from 'firebase/firestore';
@@ -29,9 +29,10 @@ const NotesList   = ({setPage, setBack, stationId}) => {
         return (
           <View style={styles.noteCard}>
             <View style={styles.noteInfo}>
-            <Text style={styles.noteName}>Note : {note.comment}</Text>
-              <Text style={styles.noteName}>Date : {new Date(note.date.toDate()).toLocaleDateString().slice(0,10)}</Text>
-              <Text style={styles.lastUpdate}>By : {note.user}</Text>
+            <Text style={styles.noteName}>{note.equipment} : {note.comment} ({note.status})</Text>
+              <Text style={styles.lastUpdate}>{new Date(note.date.toDate()).toLocaleString()} By {note.user}</Text>
+              
+              {/* {note.image && <Image source={{ uri: note.image }} style={styles.noteImage} />} */}
             </View>
           </View>
         );
@@ -78,6 +79,7 @@ const styles = StyleSheet.create({
   lastUpdate: {
     color: 'white',
     fontSize: 14,
+    fontWeight: 'normal',
   },
   noteIcon: {
     width: 24,
