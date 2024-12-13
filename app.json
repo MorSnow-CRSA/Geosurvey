@@ -2,6 +2,12 @@
   "expo": {
     "name": "CRSA-Geosurvey",
     "slug": "CRSA-Geosurvey",
+    "splash": {
+      // "image": "./assets/favicon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    // "icon": "./assets/favicon.png",
     "version": "1.0.0",
     "extra": {
       "eas": {
@@ -9,7 +15,14 @@
       }
     },
     "android": {
-      "package": "com.crsa.geosurvey"
+      "adaptiveIcon": {
+        // "foregroundImage": "./assets/favicon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package":"com.crsa.terrain"
     }
+    // "web": {
+    //   "favicon": "./assets/favicon.png"
+    // }
   }
 }

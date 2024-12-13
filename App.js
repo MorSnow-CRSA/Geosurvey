@@ -14,11 +14,13 @@ import AddNote from './screens/AddNote';
 import StationStatus from './screens/StationStatus';
 import UpdateStation from './screens/UpdateStation';
 import NotesList from './screens/NotesList';
+
 export default function App() {
   const [user, setUser] = useState(null);
   const [page, setPage] = useState('home');
   const [back, setBack] = useState(null);
   const [stationId, setStationId] = useState(null);
+  const [activeTab, setActiveTab] = useState('home');
 
   const getUser = async () => {
     try {
@@ -48,30 +50,8 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      {user && (
-        <View style={styles.navigationBar}>
-          {back && (
-          <TouchableOpacity onPress={() => setPage(back)} style={styles.navItem}>
-            <MaterialCommunityIcons name="arrow-left-bold-circle-outline" size={24} color='#ffffff' />
-          </TouchableOpacity>
-          )}
-          <View style={{ alignSelf: 'center', width: '200px' }}>
-            <TouchableOpacity onPress={() => {setPage('home'); setBack(null)}}>
-              <Image
-                source={require('./assets/images/logo-2.png')} 
-                // style={{ width: '100px', maxHeight: '100px' }}
-                onError={(error) => console.log('Image Load Error:', error)}
-              />
-            </TouchableOpacity>
-          </View>
-          <TouchableOpacity onPress={() => logout()} style={styles.navItem}>
-            <MaterialCommunityIcons name="logout" size={24} color='#ffffff' />
-          </TouchableOpacity>
-        </View>
-      )}
-      
-      {user && (page === "home" && <HomeScreen setPage={setPage} setBack={setBack} />)}
-      {user && (page === "Stations" && <StationsScreen setPage={setPage} setBack={setBack} setStationId={setStationId}/>)}
+      {user && (page === "home" && <HomeScreen setPage={setPage} setBack={setBack} user={user} />)}
+      {user && (page === "Station" && <StationsScreen setPage={setPage} setBack={setBack} setStationId={setStationId}/>)}
       {user && (page === "AddStation" && <AddStation setPage={setPage} setBack={setBack}  />)}
       {user && (page === "StationDetails" && <StationDetails setPage={setPage} setBack={setBack} stationId={stationId} />)}
       {user && (page === "Add equipment" && <AddEquipment setPage={setPage} setBack={setBack} stationId={stationId} />)}
@@ -79,19 +59,59 @@ export default function App() {
       {user && (page === "Status" && <StationStatus setPage={setPage} setBack={setBack} stationId={stationId} />)}
       {user && (page === "View notes" && <NotesList setPage={setPage} setBack={setBack} stationId={stationId} />)}
       {user && (page === "Update station" && <UpdateStation setPage={setPage} setBack={setBack} stationId={stationId} />)}
-      {!user && <Login setUser={setUser}/>}       
+      
+      {!user && <Login setUser={setUser}/>} 
+      
+      {user && (
+        <View style={styles.bottomNav}>
+          <TouchableOpacity 
+            style={styles.bottomNavItem}
+            onPress={() => setActiveTab('notifications')}
+          >
+            <MaterialCommunityIcons 
+              name="bell-outline" 
+              style={styles.bottomNavIcon}
+              borderTopColor={activeTab === 'notifications' ? '#1a3875' : '#8E8E93'} 
+              borderTopWidth={activeTab === 'notifications' ? 2 : 0}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.bottomNavItem}
+            onPress={() => {
+              setActiveTab('home');
+              setPage('home');
+            }}
+          >
+            <MaterialIcons 
+              name="home" 
+              style={styles.bottomNavIcon}
+              borderTopColor={activeTab === 'home' ? '#1a3875' : '#8E8E93'} 
+              borderTopWidth={activeTab === 'home' ? 2 : 0}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.bottomNavItem}
+            onPress={() => setActiveTab('profile')}
+          >
+            <MaterialCommunityIcons 
+              name="account-outline" 
+              style={styles.bottomNavIcon}
+              borderTopColor={activeTab === 'profile' ? '#1a3875' : '#8E8E93'} 
+              borderTopWidth={activeTab === 'profile' ? 2 : 0}
+            />
+          </TouchableOpacity>
+        </View>
+      )}
+      
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'column',
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flex: 1,
+    backgroundColor: '#1a3875',
     width: '100%',
-    height: '100%',
   },
   navigationBar: {
     flexDirection: 'row',
@@ -99,9 +119,39 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingTop: 50,
     paddingHorizontal: 20,
-    backgroundColor: '#2B2F77',
+    backgroundColor: '#2b4b9a',
   },
-  navItem: {
-    padding: 10,
+
+  bottomNav: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    paddingVertical: 12,
+    marginHorizontal: 20,
+    marginBottom: 20,
+    borderRadius: 30,
+    shadowColor: '#000',
+    width: '90%',
+    alignSelf: 'center',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  bottomNavItem: {
+    alignItems: 'center',
+    paddingTop: '10px',
+    paddingHorizontal: '20px',
+    color:"#1a3875"
+  },
+  bottomNavIcon: {
+    size: 24,
+    fontWeight: 'bold',
+    fontSize: 24,
+    color: "#1a3875"
   }
 });

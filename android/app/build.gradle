@@ -109,9 +109,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.crsa.geosurvey'
+    namespace 'com.crsa.terrain'
     defaultConfig {
-        applicationId 'com.crsa.geosurvey'
+        applicationId 'com.crsa.terrain'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
