@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, TextInput, StyleSheet, Platform } from 'react-native';
-import { db, storage } from '../firestore.js';
+import { db, storage } from '../../firestore.js';
 import { collection,GeoPoint, updateDoc,getDoc, doc } from 'firebase/firestore'; 
 import { useState, useEffect } from 'react';
 import DateTimePicker from '@react-native-community/datetimepicker';

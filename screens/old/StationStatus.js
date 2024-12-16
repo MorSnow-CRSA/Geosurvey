@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { db } from '../firestore';
+import { db } from '../../firestore';
 import { collection, query, doc, orderBy, getDocs, getDoc, where, limit} from 'firebase/firestore';
 import {useState, useEffect } from 'react';
 

@@ -1,33 +1,42 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, FlatList, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, StyleSheet, Image } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { db } from '../firestore';
-import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../../firestore';
+import { collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
 import {useState, useEffect } from 'react';
 
-const StationDetails = ({setPage, setBack, stationId}) => {
+const StationNotes = ({setPage, setBack, stationId}) => {
 
-  // setBack(null);
-  const [station, setStation] = useState(null);
-  const getStation = async () => {
-    const docRef = doc(db, "station", stationId);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      setStation(docSnap.data());
-    }
-  };
-  useEffect(() => {
-    setBack("Stations");
-    getStation();
-  }, []);
-  const sections = [
-    { id: '1', itemName: 'Add note', icon: 'create-new-folder' },
-    { id: '2', itemName: 'View notes', icon: 'note' },
-    { id: '3', itemName: 'Status', icon: 'preview' },
-    { id: '4', itemName: 'Add equipment', icon: 'add' },
-    { id: '5', itemName: 'Update station', icon: 'edit-document' },
-    { id: '6', itemName: 'Generate report', icon: 'file-download' },
-  ];
+    const [lastVisit, setLastVisit] = useState("");
+    const [equipmentStatus, setEquipmentStatus] = useState("");
+
+
+    // Function to fetch the last equipment with "damaged" status for a specific station
+    const fetchNotes = async (stationId) => {
+        try {
+            const q = query(
+                collection(db, "station", stationId, "notes"),
+                orderBy("date", "desc"),
+            );
+            const querySnapshot = await getDocs(q);
+            const notes = querySnapshot.docs.map((doc) => doc.data());
+            return notes;
+        } catch (error) {
+            console.error("Error fetching notes: ", error);
+            return [];
+        }
+    };
+    
+    
+    // Example usage
+    useEffect(() => {
+        const getNotes = async () => {
+            const notes = await fetchNotes(stationId);
+            console.log("Notes: ", notes);
+        };
+    
+        getNotes();
+    }, [stationId]);
   
 
   const OptionsDetails = ({ item }) => (
@@ -44,21 +53,16 @@ const StationDetails = ({setPage, setBack, stationId}) => {
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-          {station && (
-              <View style={styles.stationDetails}>
-                  <Text style={styles.stationName}>Station : {station.name}</Text>
-              </View>
-          )}
-          <FlatList
-              data={sections}
-              renderItem={OptionsDetails}
-              keyExtractor={item => item.id}
-              numColumns={2}
-              columnWrapperStyle={styles.row}
-              contentContainerStyle={styles.flatListContent}
-          />
-      </ScrollView>
+        {station && (
+        <View style={styles.stationDetails}>
+            <Text style={styles.stationName}>Station : {station.name}</Text>
+        </View>
+        )}
+      <FlatList
+        data={notes}
+        renderItem={({ item }) => <NoteItem note={item} />}
+        keyExtractor={(item, index) => index.toString()}
+      />
     </View>
   );
 };
@@ -85,7 +89,6 @@ const styles = StyleSheet.create({
   },
   row: {
     justifyContent: 'space-between',
-    flex: 1,
   },
   reportCard: {
     flexDirection: 'column',
@@ -123,9 +126,6 @@ const styles = StyleSheet.create({
   carIcon: {
     marginBottom: 5,
   },  
-  flatListContent: {
-    paddingBottom: 20, // Adjust this value if needed
-  },
 });
 
-export default StationDetails;
+export default StationNotes;

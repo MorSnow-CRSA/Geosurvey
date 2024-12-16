@@ -1,6 +1,6 @@
 import React from 'react';
 import { View,ScrollView, Text, StyleSheet, Image } from 'react-native';
-import { db,  } from '../firestore.js';
+import { db,  } from '../../firestore.js';
 import { useState, useEffect } from 'react';
 import {collection,  doc,  getDoc} from 'firebase/firestore';
 const NotesList   = ({setPage, setBack, stationId}) => {

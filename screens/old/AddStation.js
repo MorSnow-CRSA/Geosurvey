@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, TextInput, StyleSheet, Platform } from 'react-native';
-import { db, storage } from '../firestore.js';
+import { db, storage } from '../../firestore.js';
 import { collection,  addDoc,GeoPoint } from 'firebase/firestore'; 
 import { useState, useEffect } from 'react';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -8,7 +8,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { Image } from 'react-native';
 import { ref, uploadBytesResumable, getDownloadURL  } from 'firebase/storage';
 
-const AddStation = ({setPage, setBack}) => {
+const AddStation = ({setPage, setBack, setNavigationParams}) => {
     setBack("Stations");
     const [name, setName] = useState("");
     const [equipments, setEquipments] = useState([]);
@@ -38,12 +38,15 @@ const AddStation = ({setPage, setBack}) => {
                 date:date,
               }
             console.log("data", data);
-          await addDoc(collection(db, "station"), data);
-          setPage("Stations", { showSuccessPopup: true }); 
-
+          response = await addDoc(collection(db, "station"), data);
+          console.log("response", response) 
+          setPage("Station");
+          setNavigationParams({ showSuccessPopup: true });
         } catch (e) {
           console.error("Error adding document: ", e);
+          setNavigationParams({ showErrorPopup: true });
         }
+        
       };
       
     

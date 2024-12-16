@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#1a3875',
     padding: 20,
-    paddingTop:150,
+    paddingTop:120,
     width: '100%',
   },
   header: {
