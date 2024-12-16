@@ -15,6 +15,7 @@ import StationStatus from './screens/old/StationStatus';
 import UpdateStation from './screens/old/UpdateStation';
 import NotesList from './screens/old/NotesList';
 import Notifications from './screens/Notifications';
+
 import {pendingOperationsQueue } from './firestore';
 export default function App() {
   const [user, setUser] = useState(null);
@@ -92,9 +93,17 @@ export default function App() {
           </Text>
         </View>
       )}
+    {page!=="home"&& (
+      <Pressable 
+        style={styles.backButton} 
+        onPress={() => setPage('home')}
+      >
+        <Text style={styles.backArrow}>←</Text>
+      </Pressable>
+    )}
       
       {user && (page === "home" && <HomeScreen setPage={setPage} setBack={setBack} user={user} />)}
-      {user && (page === "Station" && <StationsScreen setPage={setPage} setBack={setBack} setStationId={setStationId} navigationParams={navigationParams} setNavigationParams={setNavigationParams}/>)}
+      {user && (page === "Station" && <StationsScreen setPage={setPage} setBack={setBack}/>)}
       {user && (page === "AddStation" && <AddStation setPage={setPage} setBack={setBack} setNavigationParams={setNavigationParams}/>)}
       {user && (page === "StationDetails" && <StationDetails setPage={setPage} setBack={setBack} stationId={stationId} />)}
       {user && (page === "Add equipment" && <AddEquipment setPage={setPage} setBack={setBack} stationId={stationId} />)}
@@ -156,6 +165,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#1a3875',
     width: '100%',
+    paddingTop:100
   },
   navigationBar: {
     flexDirection: 'row',
@@ -205,7 +215,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderRadius: 20,
     alignSelf: 'center',
-    marginTop: 8,
+    marginTop: 50,
   },
   statusIndicator: {
     width: 8,
@@ -223,5 +233,19 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 12,
     fontWeight: '500',
+  },
+  arrow: {
+    fontSize: 24,
+    color: '#1a3875',
+  },
+  backButton: {
+    position: 'absolute',
+    top: 40,
+    left: 20,
+    zIndex: 1,
+  },
+  backArrow: {
+    fontSize: 30,
+    color: 'white',
   },
 });
