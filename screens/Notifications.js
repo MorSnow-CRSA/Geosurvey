@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, ActivityIndicator } from 'react-native';
-import {  collection, query, where, orderBy, getDocs } from 'firebase/firestore';
+import {  collection, query, where, orderBy, getDocs, updateDoc } from 'firebase/firestore';
 import { db, auth } from '../firestore';
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
@@ -28,6 +28,15 @@ const Notifications = () => {
         ...doc.data()
       }));
 
+      // turn notifications as seen
+      querySnapshot.docs.forEach((doc) => {
+        if (!doc.data().seen) {  // Only update if not already seen
+          updateDoc(doc.ref, {
+            seen: true
+          });
+        }
+      });
+
       setNotifications(notificationsList);
     } catch (error) {
       console.error('Error fetching notifications:', error);
@@ -37,7 +46,7 @@ const Notifications = () => {
   };
 
   const renderNotification = ({ item }) => (
-    <View style={styles.notificationItem}>
+    <View style={item.seen ? styles.seenNotification : styles.notificationItem}>
       <Text style={styles.content}>{item.content}</Text>
       <Text style={styles.timestamp}>
         {item.createdAt?.toDate().toLocaleDateString()}
@@ -86,6 +95,12 @@ const styles = StyleSheet.create({
   },
   notificationItem: {
     backgroundColor: '#f5f5f5',
+    padding: 16,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  seenNotification: {
+    backgroundColor: '#a5a5a5',
     padding: 16,
     borderRadius: 8,
     marginBottom: 12,
