@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, FlatList, StyleSheet, Image } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-const HomeScreen = ({setPage, setBack, user}) => {
+const HomeScreen = ({setPage, setBack, user, ModalContent ,setModalContent}) => {
+  const [modal, setModal] = useState(ModalContent);
+  setModalContent(null);
   const sections = [
     { id: '1', itemName: 'Station', action: 'Management' },
     { id: '2', itemName: 'Drone', action: 'reservation' },
@@ -37,6 +39,15 @@ const HomeScreen = ({setPage, setBack, user}) => {
         numColumns={2}
         columnWrapperStyle={styles.row}
       />
+
+      {modal && (
+        <Text style={[
+          styles.modalContent, 
+          modal.type === 'success' ? styles.successModal : styles.errorModal
+        ]}>
+          {modal.message}
+        </Text>
+      )}
       
     </View>
   );
@@ -47,7 +58,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#1a3875',
     padding: 20,
-    paddingTop:120,
     width: '100%',
   },
   header: {
@@ -99,6 +109,24 @@ const styles = StyleSheet.create({
   },
   Icon: {
     marginLeft: 8,
+  },
+  modalContent: {
+    position: 'absolute',
+    bottom: 40,
+    left: 20,
+    right: 20,
+    padding: 15,
+    borderRadius: 8,
+    textAlign: 'center',
+    fontSize: 16,
+  },
+  successModal: {
+    backgroundColor: '#4CAF50',
+    color: 'white',
+  },
+  errorModal: {
+    backgroundColor: '#f44336',
+    color: 'white',
   },
 });
 

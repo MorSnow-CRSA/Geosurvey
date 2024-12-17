@@ -4,28 +4,39 @@ import { StyleSheet, Text, View,Image, Pressable } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
-import Login from './screens/Login';
-import HomeScreen from './screens/HomeScreen';
-import StationsScreen from './screens/StationsScreen';
-import AddStation from './screens/old/AddStation';
-import StationDetails from './screens/old/StationDetails';
-import AddEquipment from './screens/old/AddEquipment';
-import AddNote from './screens/old/AddNote';
+
+// old screens
 import StationStatus from './screens/old/StationStatus';
 import UpdateStation from './screens/old/UpdateStation';
 import NotesList from './screens/old/NotesList';
-import Notifications from './screens/Notifications';
+import AddStation from './screens/old/AddStation';
+// import StationDetails from './screens/old/StationDetails';
+import AddEquipment from './screens/old/AddEquipment';
 
-import {pendingOperationsQueue } from './firestore';
+
+// new screens
+import Login from './screens/Login';
+import HomeScreen from './screens/HomeScreen';
+import StationsScreen from './screens/StationsScreen';
+import Reservations from './screens/Reservations';
+import Notifications from './screens/Notifications';
+import StationsState from './screens/StationsState';
+import AddNote from './screens/AddNote';
+import StationDetails from './screens/StationDetails';
+import EquipmentDetails from './screens/EquipmentDetails';
+import ViewNotes from './screens/ViewNotes';
+import DroneReservation from './screens/DroneReservation';
+
+
 export default function App() {
   const [user, setUser] = useState(null);
   const [page, setPage] = useState('home');
   const [back, setBack] = useState(null);
   const [stationId, setStationId] = useState(null);
+  const [equipmentId, setEquipmentId] = useState(null);
   const [activeTab, setActiveTab] = useState('home');
   const [online, setOnline] = useState(false);
-  const [navigationParams, setNavigationParams] = useState(null);
-
+  const [modalContent, setModalContent] = useState(null);
 
   const checkInternetConnection = async () => {
     const controller = new AbortController();
@@ -46,11 +57,9 @@ export default function App() {
 
   useEffect(() => {
     const isReachable =  checkInternetConnection();
-      console.log("isReachable", isReachable); // Debug log
       setOnline(isReachable);
     const interval = setInterval(async () => {
       const isReachable = await checkInternetConnection();
-      console.log("isReachable", isReachable); // Debug log
       setOnline(isReachable);
     }, 60000); // 1 minute
 
@@ -96,22 +105,21 @@ export default function App() {
     {page!=="home"&& (
       <Pressable 
         style={styles.backButton} 
-        onPress={() => setPage('home')}
+        onPress={() => setPage(back)}
       >
         <Text style={styles.backArrow}>←</Text>
       </Pressable>
     )}
       
-      {user && (page === "home" && <HomeScreen setPage={setPage} setBack={setBack} user={user} />)}
-      {user && (page === "Station" && <StationsScreen setPage={setPage} setBack={setBack}/>)}
-      {user && (page === "AddStation" && <AddStation setPage={setPage} setBack={setBack} setNavigationParams={setNavigationParams}/>)}
-      {user && (page === "StationDetails" && <StationDetails setPage={setPage} setBack={setBack} stationId={stationId} />)}
-      {user && (page === "Add equipment" && <AddEquipment setPage={setPage} setBack={setBack} stationId={stationId} />)}
-      {user && (page === "Add note" && <AddNote setPage={setPage} setBack={setBack} stationId={stationId} user={user} />)}
-      {user && (page === "Status" && <StationStatus setPage={setPage} setBack={setBack} stationId={stationId} />)}
-      {user && (page === "View notes" && <NotesList setPage={setPage} setBack={setBack} stationId={stationId} />)}
-      {user && (page === "Update station" && <UpdateStation setPage={setPage} setBack={setBack} stationId={stationId} />)}
+      {user && (page === "home" && <HomeScreen setPage={setPage} setBack={setBack} user={user} ModalContent={modalContent} setModalContent={setModalContent}/>)}
+      {user && (page === "Station" && <StationsScreen setPage={setPage} setBack={setBack} modalContent={modalContent} setModalContent={setModalContent}/>)}
+      {user && (page === "StationDetails" && <StationDetails setPage={setPage} setBack={setBack} stationId={stationId} setEquipmentId={setEquipmentId} />)}
+      {user && (page === "StationState" && <StationsState setPage={setPage} setBack={setBack} setStationId={setStationId} />)}
+      {user && (page === "addNote" && <AddNote setPage={setPage} setBack={setBack} user={user} modalContent={modalContent} setModalContent={setModalContent} />)}
+      {user && (page === "EquipmentDetails" && <EquipmentDetails setPage={setPage} setBack={setBack} stationId={stationId} equipment={equipmentId} />)}
+      {user && (page === "viewNotes" && <ViewNotes setPage={setPage} setBack={setBack} />)}
       {user && (page === "Notifications" && <Notifications setPage={setPage} setBack={setBack} />)}
+      {user && (page === "Drone" && <DroneReservation setPage={setPage} setBack={setBack} user={user} setModalContent={setModalContent} />)}
       {!user && <Login setUser={setUser} online={online} />} 
       
       {user && (
@@ -165,7 +173,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#1a3875',
     width: '100%',
-    paddingTop:100
+    paddingTop:60
   },
   navigationBar: {
     flexDirection: 'row',
