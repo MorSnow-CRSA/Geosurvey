@@ -4,6 +4,7 @@ import { Calendar } from 'react-native-calendars';
 import { Ionicons } from '@expo/vector-icons';
 import { db } from '../firestore';
 import { collection, getDocs, doc, getDoc, updateDoc } from 'firebase/firestore';
+import { sendEmail } from './Email';
 
 const DroneReservation = ({setPage, setBack, user, setModalContent}) => {
     setBack("home")
@@ -25,6 +26,7 @@ const DroneReservation = ({setPage, setBack, user, setModalContent}) => {
                 const dronesList = querySnapshot.docs.map(doc => ({
                     id: doc.id,
                     name: doc.data().name,
+                    managers: doc.data().managers || [],
                     reservations: doc.data().reservations || []
                 }));
                 setDrones(dronesList);
@@ -92,30 +94,41 @@ const DroneReservation = ({setPage, setBack, user, setModalContent}) => {
         }
     };
 
-    const handleSubmit = async () => {
-        try{
-            const droneSnapshot = doc(db, 'drone', selectedDrone.id);
-            const droneDoc = await getDoc(droneSnapshot);
-            const currentReservations = droneDoc.data().reservations || [];
-            const newReservation = {
-                from_date: dateRange.startDate,
-                to_date: dateRange.endDate,
-                subject: subject,
-                user: user.email,
-                approved: false,
-            };
-            await updateDoc(droneSnapshot, { 
-                reservations: [...currentReservations, newReservation]
-            });
-        
-        }catch(error){
-            setModalContent({'type':'error', 'message':'resevation request failed'})
-        }
-        finally{
-            setModalContent({'type':'success', 'message':'resevation request sent successfully'})
-            setPage("home");
-        }
+    
 
+    const handleSubmit = () => {
+        if (!selectedDrone) return;
+
+        const droneSnapshot = doc(db, 'drone', selectedDrone.id);
+        
+        // Handle everything in the background
+        Promise.all([
+            getDoc(droneSnapshot).then(droneDoc => {
+                const currentReservations = droneDoc.data().reservations || [];
+                const newReservation = {
+                    from_date: dateRange.startDate,
+                    to_date: dateRange.endDate,
+                    subject: subject,
+                    user: user.email,
+                    approved: false,
+                };
+                
+                return updateDoc(droneSnapshot, { 
+                    reservations: [...currentReservations, newReservation]
+                });
+            }),
+            ...selectedDrone.managers.map(manager => 
+                sendEmail(manager, selectedDrone.name, user.email, dateRange.startDate, dateRange.endDate, subject)
+            )
+        ]).catch(error => {
+            console.error("Background operations error:", error);
+            setModalContent({'type':'error', 'message':'You are offline, the request will be sent when you are online'});
+            setPage("home");
+        });
+        
+        // Execute immediately
+        setModalContent({'type':'success', 'message':'reservation request sent successfully'})
+        setPage("home");
     };
 
     return (

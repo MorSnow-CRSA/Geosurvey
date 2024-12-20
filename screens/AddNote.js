@@ -113,10 +113,9 @@ const AddReportScreen = ({ setBack, setPage, user, setModalContent }) => {
                     // Add new note to the equipment
                     equipments[equipmentIndex].notes.push({
                         status: status,
-                        comments: equipmentComments,
+                        comment: equipmentComments,
                         date: date,
                         dataCollected: dataCollected,
-                        createdAt: new Date(),
                         user: user.email,
                         images: images,
                     });

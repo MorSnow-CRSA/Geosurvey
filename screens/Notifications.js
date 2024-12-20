@@ -45,6 +45,10 @@ const Notifications = () => {
     }
   };
 
+  const sendEmail = () =>{
+    
+  }
+
   const renderNotification = ({ item }) => (
     <View style={item.seen ? styles.seenNotification : styles.notificationItem}>
       <Text style={styles.content}>{item.content}</Text>

@@ -5,20 +5,13 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
 
-// old screens
-import StationStatus from './screens/old/StationStatus';
-import UpdateStation from './screens/old/UpdateStation';
-import NotesList from './screens/old/NotesList';
-import AddStation from './screens/old/AddStation';
-// import StationDetails from './screens/old/StationDetails';
-import AddEquipment from './screens/old/AddEquipment';
+
 
 
 // new screens
 import Login from './screens/Login';
 import HomeScreen from './screens/HomeScreen';
 import StationsScreen from './screens/StationsScreen';
-import Reservations from './screens/Reservations';
 import Notifications from './screens/Notifications';
 import StationsState from './screens/StationsState';
 import AddNote from './screens/AddNote';
@@ -26,7 +19,6 @@ import StationDetails from './screens/StationDetails';
 import EquipmentDetails from './screens/EquipmentDetails';
 import ViewNotes from './screens/ViewNotes';
 import DroneReservation from './screens/DroneReservation';
-
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -110,7 +102,7 @@ export default function App() {
         <Text style={styles.backArrow}>←</Text>
       </Pressable>
     )}
-      
+      {/* {user && (page === "home" && <Email setPage={setPage} setBack={setBack} setModalContent={setModalContent} user={user}/>)} */}
       {user && (page === "home" && <HomeScreen setPage={setPage} setBack={setBack} user={user} ModalContent={modalContent} setModalContent={setModalContent}/>)}
       {user && (page === "Station" && <StationsScreen setPage={setPage} setBack={setBack} modalContent={modalContent} setModalContent={setModalContent}/>)}
       {user && (page === "StationDetails" && <StationDetails setPage={setPage} setBack={setBack} stationId={stationId} setEquipmentId={setEquipmentId} />)}

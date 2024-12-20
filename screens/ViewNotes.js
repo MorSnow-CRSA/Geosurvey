@@ -80,7 +80,7 @@ const ViewNotes = ({setPage, setBack}) => {
                 <Text style={styles.equipmentName}>{note.equipmentName}</Text>
                 <Text style={styles.noteContent}>{note.comment}</Text>
                 <Text style={styles.noteDetails}>
-                    {note.Date.toDate().toDateString()} - By: {note.user.split("@")[0].split(".").join(" ")}
+                    {note.date.toDate().toDateString()} - By: {note.user.split("@")[0].split(".").join(" ")}
                 </Text>
                 
             </View>
